@@ -1,0 +1,63 @@
+service: ct-email-notification-service
+frameworkVersion: '2'
+
+custom:
+  SENDER_EMAIL_ADDRESS: martinez.patrickdane@gmail.com
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: ${opt:region, 'us-east-1'}
+  stage: ${opt:stage, 'dev'}
+
+
+functions:
+  ScheduleEmail:
+    handler: src/handlers/ScheduleEmailHandler.handle
+    events:
+      - http:
+          path: email-notification/schedule
+          method: post
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "states:StartExecution"
+        Resource: 
+          - Ref: EmailSchedulingStateMachineDash${self:provider.stage}
+    environment:
+      EMAIL_SCHEDULING_STATE_MACHINE_ARN: 
+        Ref: EmailSchedulingStateMachineDash${self:provider.stage}
+      
+  SendEmail:
+    handler: src/handlers/SendEmailHandler.handle
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "ses:SendEmail"
+        Resource: "*"
+    environment:
+      SENDER_EMAIL_ADDRESS: ${self:custom.SENDER_EMAIL_ADDRESS}
+
+stepFunctions:
+  stateMachines:
+    EmailSchedulingStateMachine:
+      name: EmailSchedulingStateMachine-${self:provider.stage}
+      definition:
+        Comment: 'Schedules an email notification to be sent at a future date'
+        StartAt: WaitForDueDate
+        States:
+          WaitForDueDate:
+            Type: Wait
+            TimestampPath: "$.notificationSchedule"
+            Next: SendEmail
+          SendEmail:
+            Type: Task
+            Resource: 
+              Fn::GetAtt: [SendEmail, Arn]
+            End: true
+
+plugins:
+  - serverless-step-functions
+  - serverless-plugin-typescript
+  - serverless-iam-roles-per-function
+  - serverless-offline
