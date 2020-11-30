@@ -9,7 +9,6 @@ const { SENDER_EMAIL_ADDRESS } = process.env
 export const sendEmail = async (event: ScheduleEmailInput) => {
   const email: EmailDetails = {
     ...event.email,
-    htmlBody: `Email reminder template goes here`,
   }
 
   try {
@@ -28,7 +27,7 @@ const send = async (email: EmailDetails) => {
     },
     Message: {
       Subject: {
-        Data: 'REMINDER: Event name goes here',
+        Data: email.subject,
       },
       Body: {
         Html: {
