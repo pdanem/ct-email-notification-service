@@ -10,8 +10,8 @@ provider:
   region: ${opt:region, 'us-east-1'}
   stage: ${opt:stage, 'dev'}
 
-
 functions:
+  # API Endpoint for scheduling new email notification using step-function
   ScheduleEmail:
     handler: src/handlers/ScheduleEmailHandler.handle
     events:
@@ -27,6 +27,29 @@ functions:
     environment:
       EMAIL_SCHEDULING_STATE_MACHINE_ARN: 
         Ref: EmailSchedulingStateMachineDash${self:provider.stage}
+
+  # API Endpoint for canceling already scheduled email notification step-function.
+  CancelScheduledEmail:
+    handler: src/handlers/CancelScheduledEmailHandler.handle
+    events:
+      - http:
+          path: email-notification/cancel
+          method: delete
+    iamRoleStatementsName: CancelScheduledEmailStopExecRole
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "states:StopExecution"
+        Resource: 
+          - Fn::Join:
+            - ":"
+            -
+              - Fn::Join:
+                - "execution"
+                - Fn::Split:
+                  - "stateMachine"
+                  - Ref: EmailSchedulingStateMachineDash${self:provider.stage}
+              - "*"
       
   SendEmail:
     handler: src/handlers/SendEmailHandler.handle
