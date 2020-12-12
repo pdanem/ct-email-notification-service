@@ -1,12 +1,9 @@
 import { APIGatewayProxyEvent } from 'aws-lambda/trigger/api-gateway-proxy'
-import StepFunctions from 'aws-sdk/clients/stepfunctions'
+import { StepFunctions } from 'aws-sdk'
 import { CancelScheduledEmailInput } from '../models/CancelScheduledEmailInput'
 
-const stepFunctions = new StepFunctions()
-
-export const cancelScheduledEmailHandler = async (
-  event: APIGatewayProxyEvent
-) => {
+export const cancelScheduledEmail = async (event: APIGatewayProxyEvent) => {
+  const stepFunctions = new StepFunctions()
   const requestBody = JSON.parse(event.body ?? '') as CancelScheduledEmailInput
 
   try {

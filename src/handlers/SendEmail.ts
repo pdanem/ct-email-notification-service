@@ -2,8 +2,6 @@ import { SES } from 'aws-sdk'
 import { EmailDetails } from '../models/EmailDetails'
 import { ScheduleEmailInput } from '../models/ScheduleEmailInput'
 
-const Ses = new SES()
-
 const { SENDER_EMAIL_ADDRESS } = process.env
 
 export const sendEmail = async (event: ScheduleEmailInput) => {
@@ -21,7 +19,8 @@ export const sendEmail = async (event: ScheduleEmailInput) => {
 }
 
 const send = async (email: EmailDetails) => {
-  const params: AWS.SES.SendEmailRequest = {
+  const Ses = new SES()
+  const params: SES.SendEmailRequest = {
     Destination: {
       ToAddresses: email.to,
     },

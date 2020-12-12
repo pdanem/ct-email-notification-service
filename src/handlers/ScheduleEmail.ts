@@ -3,11 +3,10 @@ import { StepFunctions } from 'aws-sdk'
 import { ScheduleEmailInput } from '../models/ScheduleEmailInput'
 import { ScheduleEmailReponse } from '../models/ScheduleEmailResponse'
 
-const stepFunctions = new StepFunctions()
-
 export const scheduleEmail = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
+  const stepFunctions = new StepFunctions()
   const requestBody = JSON.parse(event.body ?? '') as ScheduleEmailInput
   const EmailSchedulingStateMachineArn =
     process.env.EMAIL_SCHEDULING_STATE_MACHINE_ARN ?? ''

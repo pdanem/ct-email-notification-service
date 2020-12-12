@@ -1,8 +1,8 @@
 import { APIGatewayProxyEvent, APIGatewayProxyHandler } from 'aws-lambda'
-import { cancelScheduledEmailHandler } from './CancelScheduledEmail'
+import { cancelScheduledEmail } from './CancelScheduledEmail'
 
 export const handle: APIGatewayProxyHandler = async (
   event: APIGatewayProxyEvent
 ) => {
-  return cancelScheduledEmailHandler(event)
+  return cancelScheduledEmail(event)
 }
